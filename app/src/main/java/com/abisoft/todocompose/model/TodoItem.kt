@@ -12,7 +12,7 @@ data class ItemData (
     var createdAt: Date,
     var modifiedAt: Date? = null
 
-)
+) // data class ItemData
 enum class Importance {
     LOW, NORMAL, URGENT
 }
