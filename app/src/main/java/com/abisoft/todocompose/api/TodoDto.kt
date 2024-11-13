@@ -1,7 +1,9 @@
 package com.example.myapplication.okhttp_client
 
 import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class TodoDto(
   @SerializedName("id")
   val id: String? = null,

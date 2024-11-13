@@ -11,7 +11,7 @@ import retrofit2.http.Path
 
 interface TodoApiService {
 
-    @GET("/list/")
+    @GET("list/")
     suspend fun getTodoList(
         @Header("Authorization") token: String,
         @Header("X-Last-Known-Revision") revision: Int
