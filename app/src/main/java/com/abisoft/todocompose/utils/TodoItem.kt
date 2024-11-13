@@ -40,12 +40,14 @@ import androidx.compose.ui.unit.dp
 import com.abisoft.todocompose.R
 import com.abisoft.todocompose.TodoItemsRepository
 import com.abisoft.todocompose.model.ItemData
+import com.example.myapplication.okhttp_client.ApiClient
+import com.example.myapplication.okhttp_client.TodoDto
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun TodoItem(task: ItemData, onCheckedChange: (Boolean) -> Unit, onDelete: () -> Unit) {
+fun TodoItem(task: TodoDto, onCheckedChange: (Boolean) -> Unit, onDelete: () -> Unit) {
     val dismissState = rememberDismissState(DismissValue.Default)
-
+    var todoItemsRepository = TodoItemsRepository(ApiClient.create())
     SwipeToDismiss(
         state = dismissState,
         background = {
@@ -74,16 +76,16 @@ fun TodoItem(task: ItemData, onCheckedChange: (Boolean) -> Unit, onDelete: () ->
                 Spacer(modifier = Modifier.width(8.dp))
 
                 CustomCheckbox(
-                    isChecked = task.isCompleted,
+                    isChecked = task.done==true,
                     onCheckedChange = onCheckedChange,
-                    isImportant = task.importance
+                    isImportant = task.importance.toString()
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = task.text,
+                    text = task.text.toString(),
                     style = MaterialTheme.typography.bodyMedium,
-                    textDecoration = if (task.isCompleted) TextDecoration.LineThrough else TextDecoration.None
+                    textDecoration = if (task.done==true) TextDecoration.LineThrough else TextDecoration.None
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 IconButton(onClick = {    }) {
@@ -100,10 +102,10 @@ fun TodoItem(task: ItemData, onCheckedChange: (Boolean) -> Unit, onDelete: () ->
         directions = setOf(DismissDirection.EndToStart)
     )
 
-    if (dismissState.isDismissed(DismissDirection.StartToEnd)) {
-        Log.d("DeleteTask", "Dismissed: Starting delete task")
-        TodoItemsRepository.deleteTask(task.id)
-        onDelete()
+    if (dismissState.isDismissed(DismissDirection.EndToStart)) {
         Log.d("DeleteTask", "Dismissed: Task deleted")
+        todoItemsRepository.deleteTodo("Earendil", task.id.toString())
+        onDelete()
     }
+
 }

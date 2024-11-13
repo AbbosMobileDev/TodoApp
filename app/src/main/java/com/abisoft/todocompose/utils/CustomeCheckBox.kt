@@ -23,21 +23,21 @@ import com.abisoft.todocompose.model.Importance
 fun CustomCheckbox(
     isChecked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    isImportant: Importance
+    isImportant: String
 ) {
     Box(
         modifier = Modifier
             .size(24.dp)
             .padding(2.dp)
             .background(
-                color = if (isChecked) Color.Green else if (isImportant.ordinal != 1) colorResource(
+                color = if (isChecked) Color.Green else if (isImportant != "low") colorResource(
                     R.color.Color_gray_light
                 ) else colorResource(R.color.white),
                 shape = MaterialTheme.shapes.extraSmall
             )
             .border(
                 width = 2.dp,
-                color = if (isChecked) Color.Green else if (isImportant.ordinal != 1) Color.Red else Color.Gray,
+                color = if (isChecked) Color.Green else if (isImportant =="important") Color.Red else Color.Gray,
                 shape = MaterialTheme.shapes.extraSmall
             )
             .clickable { onCheckedChange(!isChecked) },

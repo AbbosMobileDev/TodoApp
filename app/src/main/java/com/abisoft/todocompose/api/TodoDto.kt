@@ -10,9 +10,9 @@ data class TodoDto(
   @SerializedName("importance")
   val importance: String? = null,
   @SerializedName("deadline")
-  val deadline: String? = null,
+  val deadline: Int? = null,
   @SerializedName("done")
-  val done: Boolean? = false,
+  val done: Boolean = false,
   @SerializedName("color")
   val color: String? = null,
   @SerializedName("created_at")
