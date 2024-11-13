@@ -113,7 +113,7 @@ fun TodoScreen(navController: NavController,
                                 viewModel.deleteTask(it.id.toString())
                             }
                         )
-                        }
+                        }//
                     }
                 }
             }
