@@ -107,15 +107,15 @@ fun TodoScreen(navController: NavController,
                         TodoItem(
                             task = it,
                             onCheckedChange = { isChecked ->
-                                viewModel.updateTaskCompletion(it.id.toString(), isChecked==true,0)
+                                viewModel.updateTaskCompletion(it.id.toString(), isChecked==true,2)
                             },
                             onDelete = {
                                 viewModel.deleteTask(it.id.toString())
                             }
                         )
-                        }//
+                        }
                     }
-                }
+                }//
             }
         }
     )

@@ -14,7 +14,7 @@ class TodoViewModel(private val repository: TodoItemsRepository) : ViewModel() {
 
     fun fetchTodos() {
         viewModelScope.launch {
-            val result = repository.getTodos("Earendil", 0) // Revision raqamini moslashtiring
+            val result = repository.getTodos("Earendil", 2) // Revision raqamini moslashtiring
             result.onSuccess { items ->
                 _todoItems.value = items
             }.onFailure {

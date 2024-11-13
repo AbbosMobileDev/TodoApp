@@ -8,7 +8,7 @@ class TodoItemsRepository(private val apiService: TodoApiService) {
     // Elementlar ro'yxatini olish
     suspend fun getTodos(token: String, revision: Int): Result<List<TodoDto>> {
         return try {
-            val response = apiService.getTodoList("Bearer $token", revision)
+            val response = apiService.getTodoList(token, revision)
             if (response.isSuccessful) {
                 Result.success(response.body() ?: emptyList())
             } else {
