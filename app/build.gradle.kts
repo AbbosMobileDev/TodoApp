@@ -62,4 +62,7 @@ dependencies {
     implementation ("androidx.compose.material3:material3:1.0.0" )// Material3 kutubxonasi
     implementation ("androidx.compose.ui:ui:1.5.0") // Jetpack Compose uchun kerakli kutubxona
     implementation ("androidx.compose.material:material:1.5.0") // Material kutubxonasi (agar kerak bo'lsa)
+    implementation ("androidx.compose.ui:ui-tooling-preview:1.5.0") // Jetpack Composening davr
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
 }
