@@ -29,7 +29,7 @@ object TodoItemsRepository {
         }
 
         fun getTasks(): List<ItemData> {
-            return tasks
+            return tasks.toList()
         }
 
         fun addTask(task: ItemData) {
