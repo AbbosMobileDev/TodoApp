@@ -71,7 +71,7 @@ dependencies {
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3") // Eng so'nggi
-
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
 
 
 }

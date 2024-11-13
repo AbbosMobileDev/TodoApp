@@ -1,81 +1,70 @@
 import android.util.Log
-import android.widget.Toast
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abisoft.todocompose.TodoItemsRepository
+import com.abisoft.todocompose.api.UpdateRequestData
 import com.example.myapplication.okhttp_client.TodoDto
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class TodoViewModel(private val repository: TodoItemsRepository) : ViewModel() {
-    private val _todoItems = MutableStateFlow<List<TodoDto>>(emptyList())
-    val todoItems: StateFlow<List<TodoDto>> = _todoItems
+    private var _todoList = MutableStateFlow<List<TodoDto>>(emptyList())
+    val todoList: StateFlow<List<TodoDto>> get() = _todoList
 
-    fun fetchTodos() {
-        viewModelScope.launch {
-            val result = repository.getTodos("Earendil", 2) // Revision raqamini moslashtiring
-            result.onSuccess { items ->
-                _todoItems.value = items
-            }.onFailure {
-                // Xatoliklarni qayta ishlash
-            }
-        }
-    }
-
-    fun updateTaskCompletion(id: String, done: Boolean,revision: Int) {
-        viewModelScope.launch {
-            // Mavjud vazifani o'zgartirib, serverga yuboramiz
-            val currentTask = _todoItems.value.find { it.id == id }
-            if (currentTask != null) {
-                val updatedTask = currentTask.copy(done = done)
-                val updatedTaskDto = TodoDto(
-                    id = updatedTask.id,
-                    text = updatedTask.text,
-                    importance = updatedTask.importance,
-                    deadline = updatedTask.deadline,
-                    done = updatedTask.done,
-                    color = updatedTask.color,
-                    createdAt = updatedTask.createdAt,
-                    changedAt = updatedTask.changedAt,
-                    lastUpdatedBy = updatedTask.lastUpdatedBy
-                )
-                val token = "Earendil" // Haqiqiy tokenni kiriting
-
-                val result = repository.updateTodo(token, revision, id, updatedTaskDto)
-
-                result.onSuccess {
-                    // Agar muvaffaqiyatli bo'lsa, lokal ro'yxatni yangilaymiz
-                    _todoItems.value = _todoItems.value.map {
-                        if (it.id == id) updatedTask else it
-                    }
-                }.onFailure {
-
-                }
-            }
-        }
-    }
-
-
-    fun deleteTask(id: String) {
+    private val _tasks = MutableStateFlow<List<TodoDto>>(emptyList())
+    val tasks: StateFlow<List<TodoDto>> = _tasks
+    private var revision = 0
+    fun fetchTasks() {
         viewModelScope.launch {
             try {
-                // API orqali vazifani o'chirish
-                val token = "Earendil" // Haqiqiy tokenni olish
-                val result = repository.deleteTodo(token, id)
+                val tasks = repository.getTasksList()
+                tasks?.let {
+                    _tasks.value = it // UIga ma'lumot yuborish
+                }            } catch (e: Exception) {
+                // Xatolikni qayta ishlash
+            }
+        }
+    }
+    fun getTasksList() {
+        viewModelScope.launch {
+            _todoList.value = repository.getTasksList() ?: emptyList()
+        }
+    }
+    fun updateTaskDone(task: TodoDto) {
+        viewModelScope.launch {
+            try {
+                val currentRevision = repository.getCurrentRevision() // Fetch the current revision
+                val updatedTask = task.copy(done = !task.done) // Toggle the 'done' field
 
-                result.onSuccess {
-                    // Agar muvaffaqiyatli o'chirilsa, lokal ro'yxatni yangilash
-                    _todoItems.value = _todoItems.value.filter { it.id != id }
-                }.onFailure {
-                    // Xatolikni qayta ishlash (masalan, log yozish yoki foydalanuvchiga xabar ko'rsatish)
-                    Log.e("TodoViewModel", "Error deleting task: ${it.message}")
+                val response = repository.updateTodo(
+                    id = task.id ?: "",
+                    updatedTask = updatedTask
+                )
+                Log.d("TodoViewModel", "Response: ${response.body()}")
+
+                if (response.isSuccessful) {
+                    _todoList.value = _todoList.value.map {
+                        if (it.id == task.id) updatedTask else it
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    println("Error: ${response.code()} - $errorBody")
                 }
             } catch (e: Exception) {
-                // Xatolikni qayta ishlash
-                Log.e("TodoViewModel", "Error: ${e.message}")
+                Log.e("TodoViewModel", "Error updating task: ${e.localizedMessage}")
+
+                println("Error updating task: ${e.localizedMessage}")
             }
         }
     }
 
+
+
 }
+
+
+
+

@@ -47,7 +47,7 @@ import com.example.myapplication.okhttp_client.TodoDto
 @Composable
 fun TodoItem(task: TodoDto, onCheckedChange: (Boolean) -> Unit, onDelete: () -> Unit) {
     val dismissState = rememberDismissState(DismissValue.Default)
-    var todoItemsRepository = TodoItemsRepository(ApiClient.create())
+    val todoItemsRepository = TodoItemsRepository(ApiClient.create())
     SwipeToDismiss(
         state = dismissState,
         background = {
@@ -102,10 +102,6 @@ fun TodoItem(task: TodoDto, onCheckedChange: (Boolean) -> Unit, onDelete: () -> 
         directions = setOf(DismissDirection.EndToStart)
     )
 
-    if (dismissState.isDismissed(DismissDirection.EndToStart)) {
-        Log.d("DeleteTask", "Dismissed: Task deleted")
-        todoItemsRepository.deleteTodo("Earendil", task.id.toString())
-        onDelete()
-    }
+
 
 }

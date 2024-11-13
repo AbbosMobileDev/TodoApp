@@ -1,5 +1,6 @@
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import com.abisoft.todocompose.R
 import com.abisoft.todocompose.utils.DatePickerSwitch
 import com.abisoft.todocompose.utils.ImportanceSelection
+import com.example.myapplication.okhttp_client.TodoDto
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +47,9 @@ fun AddTaskScreen(onTaskAdded: () -> Unit, onClose: () -> Unit) {
 
     var isImportant by remember { mutableStateOf(false) }
     var taskText by remember { mutableStateOf("") }
+    var taskDeadline by remember { mutableStateOf(0) } // Deadline uchun o'zgaruvchini qo'shish
+    var taskColor by remember { mutableStateOf("") } // Rang uchun o'zgaruvchini qo'shish
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -66,7 +72,23 @@ fun AddTaskScreen(onTaskAdded: () -> Unit, onClose: () -> Unit) {
                         Text(
                             text = "СОХРАНИТЬ",
                             color = Color.Blue,
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .clickable {
+                                    val newTodo = TodoDto(
+                                        id = UUID.randomUUID().toString(), // Generate a UUID for the new task
+                                        text = taskText,
+                                        importance = if (isImportant) "High" else "Normal", // Set importance
+                                        deadline = taskDeadline,
+                                        done = false,
+                                        color = taskColor,
+                                        createdAt = System.currentTimeMillis().toInt(),
+                                        changedAt = System.currentTimeMillis().toInt(),
+                                        lastUpdatedBy = "User",
+                                        )
+                                    onTaskAdded(newTodo)
+                                    onClose()
+                                }
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -97,15 +119,14 @@ fun AddTaskScreen(onTaskAdded: () -> Unit, onClose: () -> Unit) {
                             .border(1.dp, Color.Green, MaterialTheme.shapes.medium),
                         colors = TextFieldDefaults.textFieldColors(
                             containerColor = colorResource(R.color.back_secondary),
-                            unfocusedIndicatorColor = Color.Transparent, // Chiziqni olib tashlaydi
+                            unfocusedIndicatorColor = Color.Transparent,
                             focusedIndicatorColor = Color.Transparent
                         )
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-
-                    ImportanceSelection()
+                    ImportanceSelection() // Importansni tanlash
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -115,13 +136,7 @@ fun AddTaskScreen(onTaskAdded: () -> Unit, onClose: () -> Unit) {
                             .height(1.dp)
                             .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
                     )
-                    DatePickerSwitch()
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
-                    )
+                    DatePickerSwitch() // Sana tanlash
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -142,8 +157,5 @@ fun AddTaskScreen(onTaskAdded: () -> Unit, onClose: () -> Unit) {
                 }
             }
         }
-
     }
-//
-
 }

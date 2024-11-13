@@ -1,79 +1,49 @@
 package com.abisoft.todocompose
 
+import com.abisoft.todocompose.api.UpdateRequestData
 import com.example.myapplication.okhttp_client.TodoApiService
 import com.example.myapplication.okhttp_client.TodoDto
+import retrofit2.Response
 
+@Suppress("UNREACHABLE_CODE")
 class TodoItemsRepository(private val apiService: TodoApiService) {
-
-    // Elementlar ro'yxatini olish
-    suspend fun getTodos(token: String, revision: Int): Result<List<TodoDto>> {
-        return try {
-            val response = apiService.getTodoList(token, revision)
-            if (response.isSuccessful) {
-                Result.success(response.body() ?: emptyList())
-            } else {
-                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
+    suspend fun getTasksList(): List<TodoDto>? {
+        val response = apiService.getTasksList()
+        return if (response.isSuccessful) {
+            response.body()?.list // list qaytariladi
+        } else {
+            null
         }
+    } suspend fun updateTodo(
+        id: String,
+        updatedTask: TodoDto
+    ): Response<TodoDto> {
+        val updateRequest = UpdateRequestData(element = updatedTask)
+        return apiService.updateTodo(
+            id = id,
+            element = updateRequest
+        )
     }
 
-    // Ro'yxatga yangi element qo'shish
-    suspend fun addTodo(token: String, revision: Int, todoItem: TodoDto): Result<TodoDto> {
-        return try {
-            val response = apiService.addTodo("Bearer $token", revision, todoItem)
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    suspend fun addTask(revision: Int, task: TodoDto): Response<TodoDto> {
+        // Task qo'shish uchun POST so'rovini yuborish
+        return apiService.addTodo(revision, task)
     }
 
-    // Belgilangan ID bo'yicha elementni olish
-    suspend fun getTodoById(token: String, id: String): Result<TodoDto> {
-        return try {
-            val response = apiService.getTodoById("Bearer $token", id)
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
+    suspend fun getCurrentRevision(): Int {
+        // API'dan tasklar ro'yxatini olish
+        val response = apiService.getTasksList()
+
+        // Agar API javobi muvaffaqiyatli bo'lsa
+        return if (response.isSuccessful) {
+            // Headerdan 'X-Revision' qiymatini olish
+            response.headers()["X-Revision"]?.toInt() ?: 0 // Agar revision bo'lmasa, 0 qaytaring
+        } else {
+            throw Exception("Failed to fetch the current revision") // Agar xato bo'lsa, xatolik chiqarish
         }
+            println("Revision: ${response.headers()["X-Revision"]?.toInt()}")
     }
 
-    // Elementni o'zgartirish
-    suspend fun updateTodo(token: String, revision: Int, id: String, todoItem: TodoDto): Result<TodoDto> {
-        return try {
-            val response = apiService.updateTodo("Bearer $token", revision, id, todoItem)
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    // Elementni o'chirish
-     fun deleteTodo(token: String, id: String): Result<Unit> {
-        return try {
-            val response = apiService.deleteTodo("Bearer $token", id)
-            if (response.isSuccessful) {
-                Result.success(Unit)
-            } else {
-                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
 }
 
 

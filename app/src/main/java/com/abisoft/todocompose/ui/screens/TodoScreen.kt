@@ -35,28 +35,17 @@ import com.abisoft.todocompose.TodoItemsRepository
 import com.abisoft.todocompose.utils.TodoItem
 import com.abisoft.todocompose.utils.ToggleIcon
 import com.example.myapplication.okhttp_client.ApiClient
-import com.example.myapplication.okhttp_client.TodoApiService
-
 @Composable
-fun TodoScreen(navController: NavController,
-) {
+fun TodoScreen(navController: NavController) {
     val apiService = ApiClient.create() // TodoApiService instansiyasini yaratish
-
-// TodoItemsRepository ni yaratish
     val repository = TodoItemsRepository(apiService)
-    var completedTasksCount by remember { mutableIntStateOf(0) }
-    var isVisible by remember { mutableStateOf(true) }
-    val viewModel: TodoViewModel = viewModel(
-        factory = TodoViewModelFactory(repository) // Factory orqali ViewModelni yaratish
-    )
-    val todoState by viewModel.todoItems.collectAsState()
+    val viewModel: TodoViewModel = viewModel(factory = TodoViewModelFactory(repository))
 
-    LaunchedEffect(todoState) {
-        completedTasksCount = todoState.count {
-            it.done ==true}
-
+    LaunchedEffect(Unit) {
+        viewModel.getTasksList()
     }
-    val visibleTasks = if (isVisible) todoState else todoState.filter { it.done !=true}
+
+    val todoList by viewModel.todoList.collectAsState()
 
     Scaffold(
         floatingActionButton = {
@@ -92,32 +81,30 @@ fun TodoScreen(navController: NavController,
                         .padding(vertical = 8.dp)
                 ) {
                     Text(
-                        text = "Выполнено — $completedTasksCount",
+                        text = "Выполнено — ${todoList.count { it.done }}", // Completed tasks count
                         style = MaterialTheme.typography.bodySmall
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     ToggleIcon(onVisibilityChange = { newVisibility ->
-                        isVisible = newVisibility})
+                        // Handle visibility change
+                    })
                 }
 
                 LazyColumn {
-                    items(items = visibleTasks) { task ->
-                        task.let {
-
+                    items(items = todoList) { task ->
                         TodoItem(
-                            task = it,
+                            task = task,
                             onCheckedChange = { isChecked ->
-                                viewModel.updateTaskCompletion(it.id.toString(), isChecked==true,2)
+                                viewModel.updateTaskDone(task.copy(done = !task.done))
                             },
                             onDelete = {
-                                viewModel.deleteTask(it.id.toString())
+                                // Delete task logic
                             }
                         )
-                        }
                     }
                 }
             }
         }
-    //
     )
 }
+
