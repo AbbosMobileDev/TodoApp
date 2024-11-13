@@ -1,46 +1,81 @@
 package com.abisoft.todocompose
 
-import com.abisoft.todocompose.model.Importance
-import com.abisoft.todocompose.model.ItemData
-import java.util.Date
+import com.example.myapplication.okhttp_client.TodoApiService
+import com.example.myapplication.okhttp_client.TodoDto
 
-object TodoItemsRepository {
+class TodoItemsRepository(private val apiService: TodoApiService) {
 
-        private val tasks = mutableListOf<ItemData>()
-
-        init {
-            repeat(20) { index ->
-                tasks.add(
-                    ItemData(
-                        id = "id_$index",
-                        text = "Task description $index",
-                        importance = when (index % 3) {
-                            0 -> Importance.LOW
-                            1 -> Importance.NORMAL
-                            else -> Importance.URGENT
-                        },
-                        deadline = null,
-                        isCompleted = false,
-                        createdAt = Date(),
-                        modifiedAt = null
-                    )
-                )
+    // Elementlar ro'yxatini olish
+    suspend fun getTodos(token: String, revision: Int): Result<List<TodoDto>> {
+        return try {
+            val response = apiService.getTodoList("Bearer $token", revision)
+            if (response.isSuccessful) {
+                Result.success(response.body() ?: emptyList())
+            } else {
+                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
             }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
+    }
 
-        fun getTasks(): List<ItemData> {
-            return tasks.toList()
+    // Ro'yxatga yangi element qo'shish
+    suspend fun addTodo(token: String, revision: Int, todoItem: TodoDto): Result<TodoDto> {
+        return try {
+            val response = apiService.addTodo("Bearer $token", revision, todoItem)
+            if (response.isSuccessful) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
+    }
 
-        fun addTask(task: ItemData) {
-            tasks.add(task)
+    // Belgilangan ID bo'yicha elementni olish
+    suspend fun getTodoById(token: String, id: String): Result<TodoDto> {
+        return try {
+            val response = apiService.getTodoById("Bearer $token", id)
+            if (response.isSuccessful) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
+    }
 
-        fun deleteTask(id: String): Boolean {
-            return tasks.removeIf { it.id == id }
+    // Elementni o'zgartirish
+    suspend fun updateTodo(token: String, revision: Int, id: String, todoItem: TodoDto): Result<TodoDto> {
+        return try {
+            val response = apiService.updateTodo("Bearer $token", revision, id, todoItem)
+            if (response.isSuccessful) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
+    }
 
-
+    // Elementni o'chirish
+     fun deleteTodo(token: String, id: String): Result<Unit> {
+        return try {
+            val response = apiService.deleteTodo("Bearer $token", id)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
+
+
 
 
