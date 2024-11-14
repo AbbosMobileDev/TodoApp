@@ -26,8 +26,8 @@ class MainActivity : ComponentActivity() {
                         AddTaskScreen(onTaskAdded = {
                             navController.popBackStack()
 
-                        }, onClose = {
-
+                        },
+                            onClose = {
                             navController.popBackStack()
                         })
                     }

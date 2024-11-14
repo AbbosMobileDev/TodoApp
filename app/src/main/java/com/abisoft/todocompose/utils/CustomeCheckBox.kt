@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import com.abisoft.todocompose.R
-import com.abisoft.todocompose.model.Importance
 
 @Composable
 fun CustomCheckbox(

@@ -7,7 +7,6 @@ class RequestLoggingInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request: Request = chain.request()
 
-        // So'rovni body bilan chiqarish
         if (request.body != null) {
             val buffer = okio.Buffer()
             request.body?.writeTo(buffer)

@@ -35,15 +35,27 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.abisoft.todocompose.R
+import com.abisoft.todocompose.TodoItemsRepository
+import com.abisoft.todocompose.ui.viewModel.addTaskViewModel.AddTaskViewModel
+import com.abisoft.todocompose.ui.viewModel.addTaskViewModel.AddViewModelFactory
 import com.abisoft.todocompose.utils.DatePickerSwitch
 import com.abisoft.todocompose.utils.ImportanceSelection
+import com.example.myapplication.okhttp_client.ApiClient
 import com.example.myapplication.okhttp_client.TodoDto
+import kotlinx.coroutines.launch
+import okhttp3.Dispatcher
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTaskScreen(onTaskAdded: () -> Unit, onClose: () -> Unit) {
+    val apiService = ApiClient.create() // TodoApiService instansiyasini yaratish
+    val repository = TodoItemsRepository(apiService)
+    val viewModel: AddTaskViewModel = viewModel(factory = AddViewModelFactory(repository))
 
     var isImportant by remember { mutableStateOf(false) }
     var taskText by remember { mutableStateOf("") }
@@ -86,7 +98,12 @@ fun AddTaskScreen(onTaskAdded: () -> Unit, onClose: () -> Unit) {
                                         changedAt = System.currentTimeMillis().toInt(),
                                         lastUpdatedBy = "User",
                                         )
-                                    onTaskAdded(newTodo)
+                                   viewModel.viewModelScope.launch {
+                                       viewModel.addNewTask(newTodo)
+                                       onTaskAdded()
+
+                                   }
+
                                     onClose()
                                 }
                         )

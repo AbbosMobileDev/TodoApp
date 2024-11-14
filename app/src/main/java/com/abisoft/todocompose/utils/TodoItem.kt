@@ -7,7 +7,6 @@ package com.abisoft.todocompose.utils
 //noinspection UsingMaterialAndMaterial3Libraries
 //noinspection UsingMaterialAndMaterial3Libraries
 //noinspection UsingMaterialAndMaterial3Libraries
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -39,7 +38,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.abisoft.todocompose.R
 import com.abisoft.todocompose.TodoItemsRepository
-import com.abisoft.todocompose.model.ItemData
 import com.example.myapplication.okhttp_client.ApiClient
 import com.example.myapplication.okhttp_client.TodoDto
 

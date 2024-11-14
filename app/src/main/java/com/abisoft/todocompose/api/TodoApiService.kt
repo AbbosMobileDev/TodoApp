@@ -1,6 +1,7 @@
 package com.example.myapplication.okhttp_client
 
 import com.abisoft.todocompose.api.UpdateRequestData
+import com.abisoft.todocompose.model.TodoItemPost
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -18,12 +19,13 @@ interface TodoApiService {
     suspend fun getTasksList(): Response<TodoItemResponse>
     data class TodoItemResponse(val list: List<TodoDto>, val revision: Int)
 
-  @POST("list/")
-  @Headers("Authorization: Bearer Earendil")
-  suspend fun addTodo(
-    @Header("X-Last-Known-Revision") revision: Int,
-    @Body todoItem: TodoDto
-  ): Response<TodoDto>
+    @Headers("Authorization: Bearer Earendil")
+    @POST("list")
+    suspend fun addTodoItem(
+        @Body todoItemPost: TodoItemPost,
+        @Header("X-Last-Known-Revision") revision: Int
+    ): Response<TodoItemPost>
+
 
     @Headers("Authorization: Bearer Earendil")
     @GET("list/{id}")
@@ -32,15 +34,20 @@ interface TodoApiService {
     ): Response<TodoDto>
 
   @Headers("Authorization: Bearer Earendil")
-  @PUT("list/{id}")
-  suspend fun updateTodo(
-      @Path("id") id: String,
-      @Body element: UpdateRequestData,
-  ): Response<TodoDto>
+
+
 
   @DELETE("list/{id}")
    fun deleteTodo(
     @Header("Authorization") token: String,
     @Path("id") id: String
   ): Response<Unit>
+
+    @Headers("Authorization: Bearer Earendil")
+    @PUT("list/{id}")
+    suspend fun updateTodo(
+        @Path("id") id: String,
+        @Body todoItemPost: TodoItemPost,
+        @Header("X-Last-Known-Revision") revision: Int
+    ): Response<TodoItemPost>
 }
