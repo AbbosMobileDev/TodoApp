@@ -1,81 +1,50 @@
-import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abisoft.todocompose.TodoItemsRepository
+import com.abisoft.todocompose.model.TodoItemNetwork
 import com.example.myapplication.okhttp_client.TodoDto
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class TodoViewModel(private val repository: TodoItemsRepository) : ViewModel() {
-    private val _todoItems = MutableStateFlow<List<TodoDto>>(emptyList())
-    val todoItems: StateFlow<List<TodoDto>> = _todoItems
+    private var _todoList = MutableStateFlow<List<TodoDto>>(emptyList())
+    val todoList: StateFlow<List<TodoDto>> get() = _todoList
 
-    fun fetchTodos() {
-        viewModelScope.launch {
-            val result = repository.getTodos("Earendil", 0) // Revision raqamini moslashtiring
-            result.onSuccess { items ->
-                _todoItems.value = items
-            }.onFailure {
-                // Xatoliklarni qayta ishlash
-            }
-        }
-    }
-
-    fun updateTaskCompletion(id: String, done: Boolean,revision: Int) {
-        viewModelScope.launch {
-            // Mavjud vazifani o'zgartirib, serverga yuboramiz
-            val currentTask = _todoItems.value.find { it.id == id }
-            if (currentTask != null) {
-                val updatedTask = currentTask.copy(done = done)
-                val updatedTaskDto = TodoDto(
-                    id = updatedTask.id,
-                    text = updatedTask.text,
-                    importance = updatedTask.importance,
-                    deadline = updatedTask.deadline,
-                    done = updatedTask.done,
-                    color = updatedTask.color,
-                    createdAt = updatedTask.createdAt,
-                    changedAt = updatedTask.changedAt,
-                    lastUpdatedBy = updatedTask.lastUpdatedBy
-                )
-                val token = "Earendil" // Haqiqiy tokenni kiriting
-
-                val result = repository.updateTodo(token, revision, id, updatedTaskDto)
-
-                result.onSuccess {
-                    // Agar muvaffaqiyatli bo'lsa, lokal ro'yxatni yangilaymiz
-                    _todoItems.value = _todoItems.value.map {
-                        if (it.id == id) updatedTask else it
-                    }
-                }.onFailure {
-
-                }
-            }
-        }
-    }
-
-
-    fun deleteTask(id: String) {
+    private val _tasks = MutableStateFlow<List<TodoDto>>(emptyList())
+    val tasks: StateFlow<List<TodoDto>> = _tasks
+    private var revision = 0
+    fun fetchTasks() {
         viewModelScope.launch {
             try {
-                // API orqali vazifani o'chirish
-                val token = "Earendil" // Haqiqiy tokenni olish
-                val result = repository.deleteTodo(token, id)
-
-                result.onSuccess {
-                    // Agar muvaffaqiyatli o'chirilsa, lokal ro'yxatni yangilash
-                    _todoItems.value = _todoItems.value.filter { it.id != id }
-                }.onFailure {
-                    // Xatolikni qayta ishlash (masalan, log yozish yoki foydalanuvchiga xabar ko'rsatish)
-                    Log.e("TodoViewModel", "Error deleting task: ${it.message}")
-                }
-            } catch (e: Exception) {
+                val tasks = repository.getTasksList()
+                tasks?.let {
+                    _tasks.value = it // UIga ma'lumot yuborish
+                }            } catch (e: Exception) {
                 // Xatolikni qayta ishlash
-                Log.e("TodoViewModel", "Error: ${e.message}")
             }
+        }
+    }
+    fun getTasksList() {
+        viewModelScope.launch {
+            _todoList.value = repository.getTasksList() ?: emptyList()
+        }
+    }// Update task done status
+    suspend fun updateTaskDone(task: TodoItemNetwork) {
+        val updatedTask = task.copy(done = !task.done)  // Flip the done status
+        val response = repository.updateItem(task.id.toString(), updatedTask)
+        if (response.isSuccessful) {
+            // Update successful, reload the task list to reflect the change
+            getTasksList()
         }
     }
 
 }
+
+
+
+
+
+
+
+

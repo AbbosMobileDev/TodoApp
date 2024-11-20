@@ -1,79 +1,65 @@
 package com.abisoft.todocompose
 
+import com.abisoft.todocompose.api.UpdateRequestData
+import com.abisoft.todocompose.model.TodoItemNetwork
+import com.abisoft.todocompose.model.TodoItemPost
 import com.example.myapplication.okhttp_client.TodoApiService
 import com.example.myapplication.okhttp_client.TodoDto
+import retrofit2.Response
 
+@Suppress("UNREACHABLE_CODE")
 class TodoItemsRepository(private val apiService: TodoApiService) {
 
-    // Elementlar ro'yxatini olish
-    suspend fun getTodos(token: String, revision: Int): Result<List<TodoDto>> {
-        return try {
-            val response = apiService.getTodoList("Bearer $token", revision)
-            if (response.isSuccessful) {
-                Result.success(response.body() ?: emptyList())
-            } else {
-                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
+
+    suspend fun getTasksList(): List<TodoDto>? {
+        val response = apiService.getTasksList()
+        return if (response.isSuccessful) {
+            response.body()?.list // list qaytariladi
+        } else {
+            null
         }
+            println("Revisionnnnn :::${response.body()?.revision?.toInt()}")
+    }
+    suspend fun updateItem(id: String, updatedTask: TodoItemNetwork): Response<TodoItemPost> {
+        val currentRevision = getCurrentRevision()
+
+        // Yangilangan taskni API kutgan formatga o'zgartirish
+        val updateRequest = TodoItemPost(
+            status = "updated", // Taskni yangilash statusi
+            element = updatedTask, // Yangilangan task
+            revision = currentRevision // Revisionni yuborish
+        )
+
+        // API'ga yangilangan taskni yuborish
+        return apiService.updateTodo(
+            id = id, // Taskning ID sini yuborish
+            todoItemPost = updateRequest, // Yangilanish talabini yuborish
+            revision = currentRevision // Revision bilan yangilash
+        )
     }
 
-    // Ro'yxatga yangi element qo'shish
-    suspend fun addTodo(token: String, revision: Int, todoItem: TodoDto): Result<TodoDto> {
-        return try {
-            val response = apiService.addTodo("Bearer $token", revision, todoItem)
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    suspend fun addTodoItem(todoItemPost: TodoItemPost, revision: Int): Response<TodoItemPost> {
+        return apiService.addTodoItem(
+            todoItemPost = todoItemPost,  // Yangi taskni yuborish
+            revision = revision  // Revisionni yuborish
+        )
     }
 
-    // Belgilangan ID bo'yicha elementni olish
-    suspend fun getTodoById(token: String, id: String): Result<TodoDto> {
-        return try {
-            val response = apiService.getTodoById("Bearer $token", id)
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
+
+    suspend fun getCurrentRevision(): Int {
+        // API'dan tasklar ro'yxatini olish
+        val response = apiService.getTasksList()
+
+        // Agar API javobi muvaffaqiyatli bo'lsa
+        return if (response.isSuccessful) {
+            // Headerdan 'X-Revision' qiymatini olish
+            response.headers()["X-Last-Known-Revision"]?.toInt() ?: 0 // Agar revision bo'lmasa, 0 qaytaring
+        } else {
+            throw Exception("Failed to fetch the current revision") // Agar xato bo'lsa, xatolik chiqarish
         }
+            println("Revision: ${response.headers()["X-Last-Known-Revision"]?.toInt()}")
     }
 
-    // Elementni o'zgartirish
-    suspend fun updateTodo(token: String, revision: Int, id: String, todoItem: TodoDto): Result<TodoDto> {
-        return try {
-            val response = apiService.updateTodo("Bearer $token", revision, id, todoItem)
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    // Elementni o'chirish
-     fun deleteTodo(token: String, id: String): Result<Unit> {
-        return try {
-            val response = apiService.deleteTodo("Bearer $token", id)
-            if (response.isSuccessful) {
-                Result.success(Unit)
-            } else {
-                Result.failure(Exception("Error: ${response.code()} - ${response.message()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
 }
 
 

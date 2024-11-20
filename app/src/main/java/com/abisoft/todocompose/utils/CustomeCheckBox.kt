@@ -17,8 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import com.abisoft.todocompose.R
-import com.abisoft.todocompose.model.Importance
-
 @Composable
 fun CustomCheckbox(
     isChecked: Boolean,
@@ -37,15 +35,14 @@ fun CustomCheckbox(
             )
             .border(
                 width = 2.dp,
-                color = if (isChecked) Color.Green else if (isImportant =="important") Color.Red else Color.Gray,
+                color = if (isChecked) Color.Green else if (isImportant == "important") Color.Red else Color.Gray,
                 shape = MaterialTheme.shapes.extraSmall
             )
-            .clickable { onCheckedChange(!isChecked) },
+            .clickable { onCheckedChange(!isChecked) },  // Here we flip the state
         contentAlignment = Alignment.Center
     ) {
         if (isChecked) {
             Icon(
-
                 imageVector = Icons.Default.Check,
                 contentDescription = "Checked",
                 tint = Color.White,
