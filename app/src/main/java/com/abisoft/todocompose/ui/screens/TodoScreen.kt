@@ -82,7 +82,6 @@ fun TodoScreen(navController: NavController) {
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     ToggleIcon(onVisibilityChange = { newVisibility ->
-                        // Handle visibility change
                     })
                 }
 
@@ -97,7 +96,6 @@ fun TodoScreen(navController: NavController) {
                                 }
                             },
                             onDelete = {
-                                // Delete task logic
                             }
                         )
                     }
