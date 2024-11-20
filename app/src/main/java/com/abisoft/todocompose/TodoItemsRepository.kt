@@ -18,14 +18,14 @@ class TodoItemsRepository(private val apiService: TodoApiService) {
         } else {
             null
         }
+            println("Revisionnnnn :::${response.body()?.revision?.toInt()}")
     }
     suspend fun updateItem(id: String, updatedTask: TodoItemNetwork): Response<TodoItemPost> {
-        // Hozirgi revisionni olish
         val currentRevision = getCurrentRevision()
 
         // Yangilangan taskni API kutgan formatga o'zgartirish
         val updateRequest = TodoItemPost(
-            status = "updated", // Taskni yangilash statusi, bu o'zgartirilishi mumkin
+            status = "updated", // Taskni yangilash statusi
             element = updatedTask, // Yangilangan task
             revision = currentRevision // Revisionni yuborish
         )

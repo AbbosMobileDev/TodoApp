@@ -19,10 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -94,8 +90,11 @@ fun TodoScreen(navController: NavController) {
                     items(items = todoList) { task ->
                         TodoItem(
                             task = task,
-                            onCheckedChange = { isChecked ->
-                                viewModel.updateTaskDone(task.copy(done = !task.done))
+                            onCheckedChange = {
+                                viewModel.run {
+                                    getTasksList()
+
+                                }
                             },
                             onDelete = {
                                 // Delete task logic
