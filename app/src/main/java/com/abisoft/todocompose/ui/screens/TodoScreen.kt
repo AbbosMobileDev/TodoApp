@@ -28,12 +28,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.abisoft.todocompose.R
 import com.abisoft.todocompose.TodoItemsRepository
+import com.abisoft.todocompose.datasource.TodoItemsDataSource
 import com.abisoft.todocompose.utils.TodoItem
 import com.abisoft.todocompose.utils.ToggleIcon
 import com.example.myapplication.okhttp_client.ApiClient
 @Composable
 fun TodoScreen(navController: NavController) {
-    val apiService = ApiClient.create() // TodoApiService instansiyasini yaratish
+    val apiService = TodoItemsDataSource(ApiClient.create()) // TodoApiService instansiyasini yaratish
     val repository = TodoItemsRepository(apiService)
     val viewModel: TodoViewModel = viewModel(factory = TodoViewModelFactory(repository))
 
