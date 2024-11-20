@@ -26,6 +26,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,11 +36,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.abisoft.todocompose.R
 import com.abisoft.todocompose.TodoItemsRepository
+import com.abisoft.todocompose.datasource.TodoItemsDataSource
 import com.abisoft.todocompose.ui.viewModel.addTaskViewModel.AddTaskViewModel
 import com.abisoft.todocompose.ui.viewModel.addTaskViewModel.AddViewModelFactory
 import com.abisoft.todocompose.utils.DatePickerSwitch
@@ -49,18 +50,19 @@ import com.example.myapplication.okhttp_client.TodoDto
 import kotlinx.coroutines.launch
 import okhttp3.Dispatcher
 import java.util.UUID
+import javax.sql.DataSource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTaskScreen(onTaskAdded: () -> Unit, onClose: () -> Unit) {
-    val apiService = ApiClient.create() // TodoApiService instansiyasini yaratish
+    val apiService = TodoItemsDataSource(ApiClient.create()) // TodoApiService instansiyasini yaratish
     val repository = TodoItemsRepository(apiService)
     val viewModel: AddTaskViewModel = viewModel(factory = AddViewModelFactory(repository))
 
-    var isImportant by remember { mutableStateOf(false) }
+    val isImportant by remember { mutableStateOf(false) }
     var taskText by remember { mutableStateOf("") }
-    var taskDeadline by remember { mutableStateOf(0) } // Deadline uchun o'zgaruvchini qo'shish
-    var taskColor by remember { mutableStateOf("") } // Rang uchun o'zgaruvchini qo'shish
+    val taskDeadline by remember { mutableStateOf(0) } // Deadline uchun o'zgaruvchini qo'shish
+    val taskColor by remember { mutableStateOf("") } // Rang uchun o'zgaruvchini qo'shish
 
     Column(
         modifier = Modifier
