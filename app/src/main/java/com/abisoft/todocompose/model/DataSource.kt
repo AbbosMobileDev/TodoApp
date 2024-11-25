@@ -1,10 +1,7 @@
 package com.abisoft.todocompose.datasource
 
-import com.abisoft.todocompose.api.UpdateRequestData
-import com.abisoft.todocompose.model.TodoItemNetwork
 import com.abisoft.todocompose.model.TodoItemPost
 import com.example.myapplication.okhttp_client.TodoApiService
-import com.example.myapplication.okhttp_client.TodoDto
 import retrofit2.Response
 
 class TodoItemsDataSource(private val apiService: TodoApiService) {
