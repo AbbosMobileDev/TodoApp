@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiClient {
 
-  val client = OkHttpClient.Builder()
+  private val client = OkHttpClient.Builder()
     .addInterceptor(RequestLoggingInterceptor()) // Custom interceptorni qo'shish
     .addInterceptor(HttpLoggingInterceptor().apply {
       level = HttpLoggingInterceptor.Level.BODY // Body va headerlarni loglash

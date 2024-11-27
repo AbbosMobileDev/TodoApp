@@ -1,67 +1,52 @@
 package com.abisoft.todocompose
 
-import com.abisoft.todocompose.api.UpdateRequestData
+import com.abisoft.todocompose.datasource.TodoItemsDataSource
 import com.abisoft.todocompose.model.TodoItemNetwork
 import com.abisoft.todocompose.model.TodoItemPost
-import com.example.myapplication.okhttp_client.TodoApiService
+import com.example.myapplication.okhttp_client.ApiClient
 import com.example.myapplication.okhttp_client.TodoDto
 import retrofit2.Response
 
-@Suppress("UNREACHABLE_CODE")
-class TodoItemsRepository(private val apiService: TodoApiService) {
-
+class TodoItemsRepository(private val dataSource: TodoItemsDataSource) {
 
     suspend fun getTasksList(): List<TodoDto>? {
-        val response = apiService.getTasksList()
+        val response = dataSource.fetchTasksList()
         return if (response.isSuccessful) {
-            response.body()?.list // list qaytariladi
+            response.body()?.list
         } else {
             null
         }
-            println("Revisionnnnn :::${response.body()?.revision?.toInt()}")
     }
+
     suspend fun updateItem(id: String, updatedTask: TodoItemNetwork): Response<TodoItemPost> {
         val currentRevision = getCurrentRevision()
 
-        // Yangilangan taskni API kutgan formatga o'zgartirish
         val updateRequest = TodoItemPost(
-            status = "updated", // Taskni yangilash statusi
-            element = updatedTask, // Yangilangan task
-            revision = currentRevision // Revisionni yuborish
+            status = "updated",
+            element = updatedTask,
+            revision = currentRevision
         )
 
-        // API'ga yangilangan taskni yuborish
-        return apiService.updateTodo(
-            id = id, // Taskning ID sini yuborish
-            todoItemPost = updateRequest, // Yangilanish talabini yuborish
-            revision = currentRevision // Revision bilan yangilash
+        return dataSource.updateTask(
+            id = id,
+            updateRequest = updateRequest,
+            revision = currentRevision
         )
     }
 
     suspend fun addTodoItem(todoItemPost: TodoItemPost, revision: Int): Response<TodoItemPost> {
-        return apiService.addTodoItem(
-            todoItemPost = todoItemPost,  // Yangi taskni yuborish
-            revision = revision  // Revisionni yuborish
+        return dataSource.addTask(
+            todoItemPost = todoItemPost,
+            revision = revision
         )
     }
 
-
     suspend fun getCurrentRevision(): Int {
-        // API'dan tasklar ro'yxatini olish
-        val response = apiService.getTasksList()
-
-        // Agar API javobi muvaffaqiyatli bo'lsa
+        val response = dataSource.fetchTasksList()
         return if (response.isSuccessful) {
-            // Headerdan 'X-Revision' qiymatini olish
-            response.headers()["X-Last-Known-Revision"]?.toInt() ?: 0 // Agar revision bo'lmasa, 0 qaytaring
+            response.headers()["X-Last-Known-Revision"]?.toInt() ?: 0
         } else {
-            throw Exception("Failed to fetch the current revision") // Agar xato bo'lsa, xatolik chiqarish
+            throw Exception("Failed to fetch the current revision")
         }
-            println("Revision: ${response.headers()["X-Last-Known-Revision"]?.toInt()}")
     }
-
 }
-
-
-
-

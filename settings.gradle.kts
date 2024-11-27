@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "ToDo compose"
 include(":app")
- 
+include(":uiModule")
