@@ -33,6 +33,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    kapt {
+        correctErrorTypes = true
+    }
     kotlinOptions {
         jvmTarget = "11"
     }
@@ -61,7 +64,7 @@ dependencies {
 
     implementation ("androidx.navigation:navigation-compose:2.8.4")
 
-    implementation ("androidx.compose.material3:material3:1.3.1" )// Material3 kutubxonasi
+    implementation ("androidx.compose.material3:material3:1.3.1")// Material3 kutubxonasi
     implementation ("androidx.compose.ui:ui:1.7.5") // Jetpack Compose uchun kerakli kutubxona
     implementation ("androidx.compose.material:material:1.7.5") // Material kutubxonasi (agar kerak bo'lsa)
     implementation ("androidx.compose.ui:ui-tooling-preview:1.7.5") // Jetpack Composening davr
@@ -77,8 +80,5 @@ dependencies {
     kapt("com.google.dagger:dagger-compiler:2.51.1")
 
     implementation( "androidx.core:core-ktx:1.12.0")
-
-
-
-
 }
+

@@ -9,7 +9,7 @@ class TodoApplication: Application() {
     override fun onCreate() {
         super.onCreate()
 
-        appComponent = DaggerMyAppComponent.create()
+
     }
 
 }
